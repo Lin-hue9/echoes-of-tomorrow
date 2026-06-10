@@ -1,15 +1,16 @@
 import os
-from flask import Flask, request, session, jsonify
-from flask_socketio import SocketIO, emit, join_room, leave_room
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timedelta
 import random
-from flask_cors import CORS
 import threading
 import time
+from datetime import datetime, timedelta
+
+from flask import Flask, request, session, jsonify, send_from_directory
+from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///echoes.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -236,7 +237,6 @@ def check_collapse(user_id):
         event = TimelineEvent(user_id=user_id, event_type='collapse', event_metadata='Contradictory choices')
         db.session.add(event)
         db.session.commit()
-        # Send collapse notification to all connected clients (no broadcast=True needed)
         socketio.emit('timeline_collapse', {'username': User.query.get(user_id).username})
         return True
     return False
@@ -961,14 +961,11 @@ def random_event_loop():
                     if 'timeline health' in event_text:
                         prog.timeline_health = min(100, prog.timeline_health + 10)
                     db.session.commit()
-            socketio.emit('global_event', {'message': event_text})  # broadcast to all
+            socketio.emit('global_event', {'message': event_text})
 
 threading.Thread(target=random_event_loop, daemon=True).start()
 
-from flask import send_from_directory
-import os
-
-# This should point to the built frontend folder
+# ----------------------------- Serve React Frontend (Production) -----------------------------
 FRONTEND_DIST = os.path.join(os.path.dirname(__file__), 'frontend', 'dist')
 
 @app.route('/', defaults={'path': ''})
@@ -979,4 +976,5 @@ def serve_react(path):
     return send_from_directory(FRONTEND_DIST, 'index.html')
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    socketio.run(app, debug=False, host='0.0.0.0', port=port)
