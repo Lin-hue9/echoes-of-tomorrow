@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="dashboard-grid">
+    <div class="glass-panel character-showcase">
+        <div class="chibi-placeholder">⭐</div>
+        <h2>{{ user.username }}</h2>
+        <p class="role" style="color:var(--gold)">{{ user.class_name }}</p>
+        <p>Your choices shape tomorrow.</p>
+    </div>
+
+    <div class="glass-panel choice-card">
+        {% if already_chose %}
+            <div class="already-chose-info">
+                <p>You've already made your choices today.</p>
+                <p>Come back tomorrow for new echoes.</p>
+                <p><strong>Your choices:</strong> {{ choices.slot1 }} / {{ choices.slot2 }} / {{ choices.slot3 }}</p>
+                <a href="{{ url_for('lobby') }}" class="btn primary" style="margin-top:20px;">Go to Lobby →</a>
+            </div>
+        {% else %}
+            <h3>⚡ Your Daily Choices</h3>
+            <div class="choice-group">
+                <label>1. Allegiance</label>
+                <select id="slot1">
+                    <option>Help a friend</option>
+                    <option>Betray a friend</option>
+                    <option>Stay neutral</option>
+                </select>
+            </div>
+            <div class="choice-group">
+                <label>2. Resource</label>
+                <select id="slot2">
+                    <option>Save money</option>
+                    <option>Spend on luxury</option>
+                    <option>Invest in research</option>
+                </select>
+            </div>
+            <div class="choice-group">
+                <label>3. Mystery</label>
+                <select id="slot3">
+                    <option>Follow the echo</option>
+                    <option>Ignore it</option>
+                    <option>Leak the echo</option>
+                </select>
+            </div>
+            <button id="submitChoices" class="btn primary">Seal Timeline</button>
+            <div id="choiceFeedback" style="margin-top:1rem;"></div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const submitBtn = document.getElementById('submitChoices');
+    if (submitBtn) {
+        submitBtn.onclick = async () => {
+            const slot1 = document.getElementById('slot1').value;
+            const slot2 = document.getElementById('slot2').value;
+            const slot3 = document.getElementById('slot3').value;
+            const res = await fetch('/make_choice', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({slot1, slot2, slot3})
+            });
+            if (res.ok) {
+                document.getElementById('choiceFeedback').innerHTML = '<span style="color:var(--gold)">Choices sealed! Timeline shifting...</span>';
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                document.getElementById('choiceFeedback').innerHTML = '<span style="color:red">Error</span>';
+            }
+        };
+    }
+</script>
+{% endblock %}

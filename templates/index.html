@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="title-screen">
+    <div class="title-content">
+        <div class="game-title">ECHOES</div>
+        <div class="game-subtitle">OF TOMORROW</div>
+
+        <div class="menu">
+            <input type="text" id="username" placeholder="Username" class="btn" style="background:rgba(0,0,0,0.5);">
+            <select id="class_name" class="btn" style="background:rgba(0,0,0,0.5);">
+                <option value="Survivor">Survivor – Sees disasters</option>
+                <option value="Billionaire">Billionaire – Knows economy</option>
+                <option value="Scientist">Scientist – Unlocks tech</option>
+                <option value="Rebel">Rebel – Leaks secrets</option>
+            </select>
+            <button id="register-btn" class="btn primary">Register</button>
+            <button id="login-btn" class="btn">Login</button>
+        </div>
+        <div id="auth-message" class="muted" style="margin-top:1rem;"></div>
+    </div>
+</div>
+
+<script>
+    const registerBtn = document.getElementById('register-btn');
+    const loginBtn = document.getElementById('login-btn');
+    const username = document.getElementById('username');
+    const classSelect = document.getElementById('class_name');
+    const msgDiv = document.getElementById('auth-message');
+
+    async function sendAuth(url) {
+        const formData = new URLSearchParams();
+        formData.append('username', username.value);
+        if (url === '/register') formData.append('class_name', classSelect.value);
+        const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: formData });
+        if (res.ok) window.location.href = '/dashboard';
+        else msgDiv.innerText = await res.text();
+    }
+    registerBtn.onclick = () => sendAuth('/register');
+    loginBtn.onclick = () => sendAuth('/login');
+</script>
+{% endblock %}

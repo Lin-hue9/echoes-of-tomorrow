@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0b1023;
+  --panel: rgba(18, 24, 52, 0.76);
+  --border: rgba(255,255,255,0.12);
+  --text: #f4f6ff;
+  --muted: #b5c0e4;
+  --accent: #8c7cff;
+  --accent2: #6dd4ff;
+  --gold: #f0c76c;
+  --radius: 18px;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #2a2b66 0%, #111530 35%, #090d1c 100%);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  overflow: hidden;
+}
+
+.glass-panel {
+  background: linear-gradient(180deg, var(--panel), rgba(10,14,32,0.82));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+.float-animation { animation: float 3s ease-in-out infinite; }
+
+@keyframes glowPulse {
+  0%,100% { box-shadow: 0 0 5px rgba(124,92,252,0.3); }
+  50% { box-shadow: 0 0 20px rgba(124,92,252,0.8); }
+}
+.glow-pulse { animation: glowPulse 2s ease-in-out infinite; }
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.card-appear { animation: fadeInScale 0.3s ease-out forwards; }

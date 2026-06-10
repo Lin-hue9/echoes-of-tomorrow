@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="lobby-grid">
+    <div class="glass-panel">
+        <h3 style="padding: 1rem 0 0 1rem;">📨 Incoming Echoes</h3>
+        <div id="messageFeed" class="message-feed">
+            {% for msg in current_user_messages %}
+            <div class="message-item">
+                <strong>from {{ msg.sender.username }}</strong><br>
+                <em>{{ msg.content }}</em>
+            </div>
+            {% else %}
+            <p style="padding:1rem;">No echoes yet. Make choices to attract messages.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="glass-panel">
+        <h3 style="padding: 1rem 0 0 1rem;">🌐 Timeline Web</h3>
+        <div id="timelineEvents" class="timeline-events">
+            {% for event in timeline_events %}
+            <div class="event-item {% if event.event_type == 'collapse' %}collapse{% endif %}">
+                {{ event.event_type }}: {{ event.event_metadata[:80] }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const socket = io();
+    socket.on('new_message', (data) => {
+        const feed = document.getElementById('messageFeed');
+        const newMsg = document.createElement('div');
+        newMsg.className = 'message-item';
+        newMsg.innerHTML = `<strong>from ${data.from}</strong><br><em>${data.content}</em>`;
+        feed.prepend(newMsg);
+    });
+    socket.on('timeline_collapse', (data) => {
+        const eventsDiv = document.getElementById('timelineEvents');
+        const collapseEvent = document.createElement('div');
+        collapseEvent.className = 'event-item collapse';
+        collapseEvent.innerText = `💥 COLLAPSE: ${data.username}'s timeline vanished`;
+        eventsDiv.prepend(collapseEvent);
+    });
+</script>
+{% endblock %}
